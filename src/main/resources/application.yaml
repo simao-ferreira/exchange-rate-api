@@ -1,0 +1,17 @@
+spring:
+  pdb:
+    datasource:
+      jdbc-url: jdbc:postgresql://localhost:5432/default_db
+      username: username
+      password: password
+      type: com.zaxxer.hikari.HikariDataSource
+      hikari:
+        driver-class-name: org.postgresql.Driver
+        maximum-pool-size: 3
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    display-request-duration: true
+    path: /swagger-ui

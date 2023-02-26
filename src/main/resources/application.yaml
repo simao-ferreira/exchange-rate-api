@@ -1,17 +1,16 @@
 spring:
-  pdb:
-    datasource:
-      jdbc-url: jdbc:postgresql://localhost:5432/default_db
-      username: username
-      password: password
-      type: com.zaxxer.hikari.HikariDataSource
-      hikari:
-        driver-class-name: org.postgresql.Driver
-        maximum-pool-size: 3
+  application:
+    name: exchange-rate-api
 
+#https://springdoc.org/v2/#properties
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     display-request-duration: true
     path: /swagger-ui
+    filter: true
+  show-actuator: true
+
+ecb:
+  url: https://www.ecb.europa.eu/

@@ -1,0 +1,70 @@
+package io.template.app.api.controller.v1
+
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.template.app.api.service.ExchangeRateServiceImpl
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.http.MediaType
+import org.springframework.test.annotation.DirtiesContext
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+@ExtendWith(SpringExtension::class)
+@WebMvcTest(ExchangeRateController::class)
+class ExchangeRateControllerTest {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @MockkBean
+    private lateinit var service: ExchangeRateServiceImpl
+
+    @BeforeEach
+    fun setup() {
+        every { service.availableCurrencies() } returns setOf("PLN", "EUR")
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenCurrenciesEndpointIsCalled_thenResultIsSuccessful() {
+        //when
+        mockMvc.perform(get("/v1/currencies"))
+            //then
+            .andExpect(status().isOk)
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenCurrenciesEndpointIsCalled_thenResultContainsMockResponse() {
+        //when
+        mockMvc.perform(get("/v1/currencies"))
+            //then
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.[0]").value("PLN"))
+            .andExpect(jsonPath("$.[1]").value("EUR"))
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenExchangeRateForCurrencyEndpointIsCalled_thenResultContainsMockResponse() {
+        //given
+        val currency = "PLN"
+        every { service.exchangeRateFor(currency) } returns "4"
+        //when
+        mockMvc.get("/v1/exchange-rate/{currency}", currency) {
+            contentType = MediaType.APPLICATION_JSON
+
+        }.andExpect {
+            status { isOk() }
+        }
+    }
+
+}

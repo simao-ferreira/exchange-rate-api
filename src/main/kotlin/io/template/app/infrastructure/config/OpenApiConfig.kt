@@ -6,15 +6,15 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class SwaggerConfig {
+class OpenApiConfig {
 
     @Bean
-    fun apiV1(): OpenAPI {
+    fun openApi(): OpenAPI {
         return OpenAPI()
             .info(
                 Info()
-                    .title("Template Example API")
-                    .description("Example description for API")
+                    .title("Exchange Rates API")
+                    .description("Exchange Rates API")
                     .version("v0.0.1")
             )
 

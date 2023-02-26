@@ -1,5 +1,11 @@
 package io.template.app.api.service
 
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.template.app.infrastructure.model.CubeDto
+import io.template.app.infrastructure.model.DailyReferenceRatesDto
+import io.template.app.infrastructure.model.EnvelopeDto
+import io.template.app.infrastructure.model.ReferenceRateDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
@@ -12,9 +18,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
-class ExchangeRateServiceImplTest(
-    @Autowired private val exchangeRateService: ExchangeRateServiceImpl
-) {
+class ExchangeRateServiceImplTest {
+
+    @MockkBean
+    private lateinit var ecbService: EcbService
+
+    @Autowired
+    private lateinit var exchangeRateService: ExchangeRateServiceImpl
+
     @Test
     fun `Available currencies should return EUR, PLN and GBP`() {
         //when
@@ -36,4 +47,37 @@ class ExchangeRateServiceImplTest(
 
         }
 
+    @Test
+    fun `Given no error happens should return a list of ecb daily exchange rates`() {
+        //given
+        val envelope = EnvelopeDto(
+            CubeDto(
+                listOf(
+                    DailyReferenceRatesDto(
+                        "",
+                        listOf(
+                            ReferenceRateDto("BGN", "1.9558"),
+                            ReferenceRateDto("CZK", "23.643"),
+                            ReferenceRateDto("DKK", "7.4438"),
+                            ReferenceRateDto("GBP", "0.88245"),
+                        )
+                    )
+                )
+            )
+        )
+
+        val expected = mapOf(
+            "BGN" to "1.9558",
+            "CZK" to "23.643",
+            "DKK" to "7.4438",
+            "GBP" to "0.88245",
+        )
+
+        every { ecbService.getDailyExchangeRatesResponse() } returns envelope
+
+        //when
+        val result = exchangeRateService.ecbDailyExchangeRates()
+        //then
+        assertEquals(result, expected)
+    }
 }

@@ -6,4 +6,6 @@ interface ExchangeRateService {
 
     fun exchangeRateFor(currency: String): String
 
+    fun ecbDailyExchangeRates(): Map<String, String>
+
 }

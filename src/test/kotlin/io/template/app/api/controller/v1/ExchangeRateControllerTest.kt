@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.http.MediaType
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
@@ -60,10 +59,22 @@ class ExchangeRateControllerTest {
         every { service.exchangeRateFor(currency) } returns "4"
         //when
         mockMvc.get("/v1/exchange-rate/{currency}", currency) {
-            contentType = MediaType.APPLICATION_JSON
-
         }.andExpect {
             status { isOk() }
+            content { json("4") }
+        }
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenDailyExchangeRatesIsCalled_thenResultContainsMockResponse() {
+        //given
+        every { service.ecbDailyExchangeRates() } returns mapOf(Pair("USD", "1.0570"), Pair("JPY", "143.55"))
+        //when
+        mockMvc.get("/v1/ecb-exchange-rates") {
+        }.andExpect {
+            status { isOk() }
+            content { json("""{"USD": "1.0570","JPY": "143.55"}""") }
         }
     }
 

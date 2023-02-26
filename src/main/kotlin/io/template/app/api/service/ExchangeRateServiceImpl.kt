@@ -1,9 +1,12 @@
 package io.template.app.api.service
 
+import io.template.app.infrastructure.model.EnvelopeDto
 import org.springframework.stereotype.Service
 
 @Service
-class ExchangeRateServiceImpl : ExchangeRateService {
+class ExchangeRateServiceImpl(
+    val ecbService: EcbService
+) : ExchangeRateService {
     override fun availableCurrencies(): Set<String> {
         return setOf("PLN", "EUR", "GBP")
     }
@@ -17,5 +20,21 @@ class ExchangeRateServiceImpl : ExchangeRateService {
                 "0"
             }
         }
+    }
+
+    override fun ecbDailyExchangeRates(): Map<String, String> {
+        val response = ecbService.getDailyExchangeRatesResponse()
+        return mapExchangeRatesResponse(response)
+    }
+
+    private fun mapExchangeRatesResponse(envelopeDto: EnvelopeDto): MutableMap<String, String> {
+
+        val exchangeRates = mutableMapOf<String, String>()
+
+        envelopeDto.cubeDto!!.exchangeRates.first().rates.map {
+            exchangeRates.put(it.currency, it.rate)
+        }
+
+        return exchangeRates
     }
 }

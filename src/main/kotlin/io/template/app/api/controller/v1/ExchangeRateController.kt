@@ -42,4 +42,17 @@ class ExchangeRateController(
     fun getExchangeRate(@PathVariable currency: String): String {
         return exchangeRateServiceImpl.exchangeRateFor(currency)
     }
+
+    @Operation(
+        method = "GET",
+        summary = "Returns ECB daily exchange rate",
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Successfully returned available daily exchange rates"
+    )
+    @GetMapping("/ecb-exchange-rates")
+    fun getEcbExchangeRates(): Map<String, String> {
+        return exchangeRateServiceImpl.ecbDailyExchangeRates()
+    }
 }

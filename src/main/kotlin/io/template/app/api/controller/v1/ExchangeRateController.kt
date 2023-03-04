@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/daily")
 @ApiResponse(responseCode = "500", description = "Internal server error, this should not happen")
-@Tag(name = "Exchange Rate Controller", description = "Endpoint for retrieving currencies")
+@Tag(name = "Daily Exchange Rate", description = "Endpoint for retrieving daily exchange rate currencies")
 class ExchangeRateController(
     private val exchangeRateServiceImpl: ExchangeRateServiceImpl
 ) {
@@ -25,7 +25,7 @@ class ExchangeRateController(
         responseCode = "200",
         description = "Successfully returned available currencies"
     )
-    @GetMapping("/currencies")
+    @GetMapping("/available-currencies")
     fun listAvailableCurrencies(): Set<String> {
         return exchangeRateServiceImpl.availableCurrencies()
     }

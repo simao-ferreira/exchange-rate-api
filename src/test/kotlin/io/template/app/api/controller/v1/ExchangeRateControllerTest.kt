@@ -35,7 +35,7 @@ class ExchangeRateControllerTest {
     @DirtiesContext
     fun whenCurrenciesEndpointIsCalled_thenResultIsSuccessful() {
         //when
-        mockMvc.perform(get("/v1/currencies"))
+        mockMvc.perform(get("/daily/available-currencies"))
             //then
             .andExpect(status().isOk)
     }
@@ -44,7 +44,7 @@ class ExchangeRateControllerTest {
     @DirtiesContext
     fun whenCurrenciesEndpointIsCalled_thenResultContainsMockResponse() {
         //when
-        mockMvc.perform(get("/v1/currencies"))
+        mockMvc.perform(get("/daily/available-currencies"))
             //then
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.[0]").value("PLN"))
@@ -58,7 +58,7 @@ class ExchangeRateControllerTest {
         val currency = "PLN"
         every { service.exchangeRateFor(currency) } returns "4"
         //when
-        mockMvc.get("/v1/exchange-rate/{currency}", currency) {
+        mockMvc.get("/daily/exchange-rate/{currency}", currency) {
         }.andExpect {
             status { isOk() }
             content { json("4") }
@@ -71,7 +71,7 @@ class ExchangeRateControllerTest {
         //given
         every { service.ecbDailyExchangeRates() } returns mapOf(Pair("USD", "1.0570"), Pair("JPY", "143.55"))
         //when
-        mockMvc.get("/v1/ecb-exchange-rates") {
+        mockMvc.get("/daily/ecb-exchange-rates") {
         }.andExpect {
             status { isOk() }
             content { json("""{"USD": "1.0570","JPY": "143.55"}""") }

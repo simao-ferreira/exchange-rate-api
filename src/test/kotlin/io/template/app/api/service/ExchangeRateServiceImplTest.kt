@@ -8,6 +8,7 @@ import io.template.app.infrastructure.model.EnvelopeDto
 import io.template.app.infrastructure.model.ReferenceRateDto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -26,12 +27,33 @@ class ExchangeRateServiceImplTest {
     @Autowired
     private lateinit var exchangeRateService: ExchangeRateServiceImpl
 
+    private val envelopeDto = EnvelopeDto(
+        CubeDto(
+            listOf(
+                DailyReferenceRatesDto(
+                    "",
+                    listOf(
+                        ReferenceRateDto("BGN", "1.9558"),
+                        ReferenceRateDto("CZK", "23.643"),
+                        ReferenceRateDto("DKK", "7.4438"),
+                        ReferenceRateDto("GBP", "0.88245"),
+                    )
+                )
+            )
+        )
+    )
+
+    @BeforeEach
+    fun setup() {
+        every { ecbService.getDailyExchangeRatesResponse() } returns envelopeDto
+    }
+
     @Test
-    fun `Available currencies should return EUR, PLN and GBP`() {
+    fun `Available currencies should return BGN, CZK, DKK and GBP`() {
         //when
         val result = exchangeRateService.availableCurrencies()
         //then
-        assertThat(result).containsExactlyInAnyOrder("EUR", "PLN", "GBP")
+        assertThat(result).containsExactlyInAnyOrder("BGN", "CZK", "DKK", "GBP")
     }
 
     @TestFactory
@@ -49,22 +71,6 @@ class ExchangeRateServiceImplTest {
 
     @Test
     fun `Given no error happens should return a list of ecb daily exchange rates`() {
-        //given
-        val envelope = EnvelopeDto(
-            CubeDto(
-                listOf(
-                    DailyReferenceRatesDto(
-                        "",
-                        listOf(
-                            ReferenceRateDto("BGN", "1.9558"),
-                            ReferenceRateDto("CZK", "23.643"),
-                            ReferenceRateDto("DKK", "7.4438"),
-                            ReferenceRateDto("GBP", "0.88245"),
-                        )
-                    )
-                )
-            )
-        )
 
         val expected = mapOf(
             "BGN" to "1.9558",
@@ -72,8 +78,6 @@ class ExchangeRateServiceImplTest {
             "DKK" to "7.4438",
             "GBP" to "0.88245",
         )
-
-        every { ecbService.getDailyExchangeRatesResponse() } returns envelope
 
         //when
         val result = exchangeRateService.ecbDailyExchangeRates()

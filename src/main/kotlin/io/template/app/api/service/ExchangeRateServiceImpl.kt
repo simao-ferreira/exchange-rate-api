@@ -8,7 +8,8 @@ class ExchangeRateServiceImpl(
     val ecbService: EcbService
 ) : ExchangeRateService {
     override fun availableCurrencies(): Set<String> {
-        return setOf("PLN", "EUR", "GBP")
+        val response = ecbService.getDailyExchangeRatesResponse()
+        return mapDayAvailableCurrencies(response)
     }
 
     override fun exchangeRateFor(currency: String): String {
@@ -36,5 +37,9 @@ class ExchangeRateServiceImpl(
         }
 
         return exchangeRates
+    }
+
+    private fun mapDayAvailableCurrencies(envelopeDto: EnvelopeDto): Set<String> {
+        return envelopeDto.cubeDto.exchangeRates.first().rates.map { it.currency }.toSet()
     }
 }

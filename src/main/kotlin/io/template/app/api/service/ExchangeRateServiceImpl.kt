@@ -31,7 +31,7 @@ class ExchangeRateServiceImpl(
 
         val exchangeRates = mutableMapOf<String, String>()
 
-        envelopeDto.cubeDto!!.exchangeRates.first().rates.map {
+        envelopeDto.cubeDto.exchangeRates.first().rates.map {
             exchangeRates.put(it.currency, it.rate)
         }
 

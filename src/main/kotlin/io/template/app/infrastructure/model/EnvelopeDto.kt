@@ -8,5 +8,5 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement
 @JsonIgnoreProperties(value = ["Sender", "subject"])
 data class EnvelopeDto(
     @JacksonXmlProperty(localName = "Cube")
-    val cubeDto: CubeDto? = null
+    val cubeDto: CubeDto
 )

@@ -6,5 +6,5 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 data class CubeDto(
     @JacksonXmlProperty(localName = "Cube")
     @JacksonXmlElementWrapper(useWrapping = false)
-    val exchangeRates: List<DailyReferenceRatesDto> = emptyList()
+    val exchangeRates: List<DailyReferenceRatesDto>
 )

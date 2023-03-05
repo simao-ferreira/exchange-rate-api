@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.spring") version "1.8.10"
 }
 
-group = "io.template"
+group = "io.exchangerate"
 version = "1.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 

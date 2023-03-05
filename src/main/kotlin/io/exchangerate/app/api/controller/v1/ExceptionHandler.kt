@@ -1,6 +1,7 @@
 package io.exchangerate.app.api.controller.v1
 
 import io.exchangerate.app.api.controller.v1.exceptions.CurrencyNotAvailableException
+import io.exchangerate.app.api.controller.v1.exceptions.EcbConnectorException
 import io.exchangerate.app.api.controller.v1.model.ErrorResponse
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -31,5 +32,20 @@ class ExceptionHandler {
     @ExceptionHandler
     fun currencyNotAvailableException(ex: CurrencyNotAvailableException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.message), HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler
+    @ApiResponse(
+        responseCode = "503",
+        description = "Error while connecting to ECB",
+        content = [
+            Content(schema = Schema(implementation = ErrorResponse::class))
+        ]
+    )
+    fun ecbConnectorException(ex: EcbConnectorException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity(
+            ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.message),
+            HttpStatus.SERVICE_UNAVAILABLE
+        )
     }
 }

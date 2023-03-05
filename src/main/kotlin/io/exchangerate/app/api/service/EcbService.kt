@@ -1,25 +1,19 @@
 package io.exchangerate.app.api.service
 
+import io.exchangerate.app.api.controller.v1.exceptions.EcbConnectorException
 import io.exchangerate.app.infrastructure.model.EnvelopeDto
 import org.springframework.stereotype.Service
 
 @Service
-class EcbService(
-    ecbClient: EcbClient
-) {
+class EcbService {
 
-    private val client = EcbClient.getClient()
-    private val connector = client.create(EcbConnector::class.java)
+    private val connector = EcbConnector.create()
 
     fun getDailyExchangeRatesResponse(): EnvelopeDto {
         val ecbResponse = connector.getDailyRates().execute()
-
         if (!ecbResponse.isSuccessful) {
-            throw Exception("Error calling ECB: ${ecbResponse.errorBody()}")
+            throw EcbConnectorException("ECB call was unsuccessful")
         }
-
-        return ecbResponse.body() ?: throw Exception("Response is null!")
-
+        return ecbResponse.body() ?: throw EcbConnectorException("ECB response was null")
     }
-
 }

@@ -1,6 +1,6 @@
 package io.exchangerate.app.api.controller.v1.model
 
-class ErrorResponse(
-    var status: Int? = null,
+data class ErrorResponse(
+    var status: Int,
     var message: String? = null,
 )

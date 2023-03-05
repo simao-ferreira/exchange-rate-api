@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.io.IOException
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(ExchangeRateController::class)
@@ -67,7 +68,7 @@ class ExchangeRateControllerTest {
                 json(
                     """{
                     "currency": "PLN",
-                    "exchangeRate": "4"
+                    "rate": "4"
                 }"""
                 )
             }
@@ -106,6 +107,26 @@ class ExchangeRateControllerTest {
         }.andExpect {
             status { isOk() }
             content { json("""{"USD": "1.0570","JPY": "143.55"}""") }
+        }
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenDailyExchangeRatesIsCalled_andSomeExceptionIsThrown_thenReturnErrorResponse() {
+        //given
+        every { service.ecbDailyExchangeRates() } throws IOException("Some exception message")
+        //when
+        mockMvc.get("/daily/ecb-exchange-rates") {
+        }.andExpect {
+            status { is5xxServerError() }
+            content {
+                json(
+                    """{
+                    "status": 500,
+                    "message": "Some exception message"
+                }"""
+                )
+            }
         }
     }
 

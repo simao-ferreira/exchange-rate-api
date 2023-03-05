@@ -1,5 +1,6 @@
 package io.template.app.api.service
 
+import io.template.app.api.controller.v1.exceptions.CurrencyNotAvailableException
 import io.template.app.infrastructure.model.EnvelopeDto
 import org.springframework.stereotype.Service
 
@@ -13,14 +14,8 @@ class ExchangeRateServiceImpl(
     }
 
     override fun exchangeRateFor(currency: String): String {
-        return when (currency) {
-            "EUR" -> "1"
-            "PLN" -> "4"
-            "GBP" -> "1.2"
-            else -> {
-                "0"
-            }
-        }
+        val response = ecbService.getDailyExchangeRatesResponse()
+        return mapExchangeRateForCurrencyFromResponse(response, currency)
     }
 
     override fun ecbDailyExchangeRates(): Map<String, String> {
@@ -41,5 +36,13 @@ class ExchangeRateServiceImpl(
 
     private fun mapDayAvailableCurrencies(envelopeDto: EnvelopeDto): Set<String> {
         return envelopeDto.cubeDto.exchangeRates.first().rates.map { it.currency }.toSet()
+    }
+
+    private fun mapExchangeRateForCurrencyFromResponse(envelopeDto: EnvelopeDto, currency: String): String {
+        return try {
+            envelopeDto.cubeDto.exchangeRates.first().rates.first { it.currency == currency }.rate
+        } catch (ex: NoSuchElementException) {
+            throw CurrencyNotAvailableException("Currency $currency not available in ECB daily exchange rate response")
+        }
     }
 }

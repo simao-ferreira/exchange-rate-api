@@ -2,16 +2,17 @@ package io.template.app.api.service
 
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import io.template.app.api.controller.v1.exceptions.CurrencyNotAvailableException
 import io.template.app.infrastructure.model.CubeDto
 import io.template.app.infrastructure.model.DailyReferenceRatesDto
 import io.template.app.infrastructure.model.EnvelopeDto
 import io.template.app.infrastructure.model.ReferenceRateDto
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -53,32 +54,41 @@ class ExchangeRateServiceImplTest {
         //when
         val result = exchangeRateService.availableCurrencies()
         //then
-        assertThat(result).containsExactlyInAnyOrder("BGN", "CZK", "DKK", "GBP")
+        assertEquals(setOf("BGN", "CZK", "DKK", "GBP"), result)
     }
 
     @TestFactory
     fun `Should return correct exchange rate`() = listOf(
-        "GBP" to "1.2",
-        "EUR" to "1",
-        "PLN" to "4",
+        "BGN" to "1.9558",
+        "CZK" to "23.643",
+        "DKK" to "7.4438",
+        "GBP" to "0.88245",
     )
         .map { (input, expected) ->
             DynamicTest.dynamicTest("of $expected for currency $input ") {
                 assertEquals(expected, exchangeRateService.exchangeRateFor(input))
             }
-
         }
 
     @Test
-    fun `Given no error happens should return a list of ecb daily exchange rates`() {
+    fun `When non existent currency is requested should throw exception`() {
+        //given
+        val currency = "ESC"
+        //when
+        val result: () -> Unit = { exchangeRateService.exchangeRateFor(currency) }
+        //then
+        assertThrows<CurrencyNotAvailableException>(result)
+    }
 
+    @Test
+    fun `Should return a list of ecb daily exchange rates`() {
+        //given
         val expected = mapOf(
             "BGN" to "1.9558",
             "CZK" to "23.643",
             "DKK" to "7.4438",
             "GBP" to "0.88245",
         )
-
         //when
         val result = exchangeRateService.ecbDailyExchangeRates()
         //then

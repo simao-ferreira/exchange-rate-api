@@ -16,4 +16,12 @@ class EcbService {
         }
         return ecbResponse.body() ?: throw EcbConnectorException("ECB response was null")
     }
+
+    fun getHistoricalExchangeRatesResponse(): EnvelopeDto {
+        val ecbResponse = connector.getLast90DaysRates().execute()
+        if (!ecbResponse.isSuccessful) {
+            throw EcbConnectorException("ECB call was unsuccessful")
+        }
+        return ecbResponse.body() ?: throw EcbConnectorException("ECB response was null")
+    }
 }

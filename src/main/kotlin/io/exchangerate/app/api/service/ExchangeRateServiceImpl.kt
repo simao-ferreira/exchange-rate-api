@@ -22,7 +22,7 @@ class ExchangeRateServiceImpl(
 
     override fun ecbDailyExchangeRates(): Map<String, String> {
         val response = ecbService.getDailyExchangeRatesResponse()
-        return mapExchangeRatesResponse(response)
+        return mapDailyExchangeRatesResponse(response)
     }
 
     private fun mapExchangeRatesResponse(envelopeDto: EnvelopeDto): MutableMap<String, String> {
@@ -33,6 +33,14 @@ class ExchangeRateServiceImpl(
             exchangeRates.put(it.currency, it.rate)
         }
 
+        return exchangeRates
+    }
+
+    private fun mapDailyExchangeRatesResponse(envelopeDto: EnvelopeDto): Map<String, String> {
+        val exchangeRates = mutableMapOf<String, String>()
+        envelopeDto.cubeDto.exchangeRates.first().rates.map {
+            exchangeRates.put(it.currency, it.rate)
+        }
         return exchangeRates
     }
 

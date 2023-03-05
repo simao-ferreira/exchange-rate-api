@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/daily")
 @Tag(name = "Daily Euro Exchange Rate", description = "Endpoint for retrieving daily euro exchange rate currencies")
-class ExchangeRateController(
+class DailyExchangeRateController(
     private val exchangeRateServiceImpl: ExchangeRateServiceImpl
 ) {
     @Operation(
@@ -68,6 +68,6 @@ class ExchangeRateController(
     )
     @GetMapping("/exchange-rate/{currency}")
     fun getExchangeRate(@PathVariable currency: String): CurrencyResponse {
-        return exchangeRateServiceImpl.exchangeRateFor(currency)
+        return exchangeRateServiceImpl.dailyExchangeRateFor(currency)
     }
 }

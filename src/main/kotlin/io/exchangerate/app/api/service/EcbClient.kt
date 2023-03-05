@@ -22,6 +22,13 @@ object EcbClient {
 }
 
 interface EcbConnector {
+
     @GET("stats/eurofxref/eurofxref-daily.xml")
     fun getDailyRates(): Call<EnvelopeDto>
+
+    @GET("stats/eurofxref/eurofxref-hist-90d.xml")
+    fun getLast90DaysRates(): Call<EnvelopeDto>
+
+    @GET("stats/eurofxref/eurofxref-hist.xml")
+    fun getAllHistoricalRates(): Call<EnvelopeDto>
 }

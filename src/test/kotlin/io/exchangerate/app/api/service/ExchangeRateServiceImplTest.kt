@@ -66,7 +66,7 @@ class ExchangeRateServiceImplTest {
     )
         .map { (input, expected) ->
             DynamicTest.dynamicTest("of $expected for currency $input ") {
-                assertEquals(expected, exchangeRateService.exchangeRateFor(input).rate)
+                assertEquals(expected, exchangeRateService.dailyExchangeRateFor(input).rate)
             }
         }
 
@@ -75,7 +75,7 @@ class ExchangeRateServiceImplTest {
         //given
         val currency = "ESC"
         //when
-        val result: () -> Unit = { exchangeRateService.exchangeRateFor(currency) }
+        val result: () -> Unit = { exchangeRateService.dailyExchangeRateFor(currency) }
         //then
         assertThrows<CurrencyNotAvailableException>(result)
     }

@@ -14,7 +14,7 @@ class ExchangeRateServiceImpl(
         return mapDayAvailableCurrencies(response)
     }
 
-    override fun exchangeRateFor(currency: String): CurrencyResponse {
+    override fun dailyExchangeRateFor(currency: String): CurrencyResponse {
         val response = ecbService.getDailyExchangeRatesResponse()
         val exchangeRate = mapExchangeRateForCurrencyFromResponse(response, currency)
         return CurrencyResponse(currency, exchangeRate)

@@ -6,7 +6,7 @@ interface ExchangeRateService {
 
     fun availableCurrencies(): Set<String>
 
-    fun exchangeRateFor(currency: String): CurrencyResponse
+    fun dailyExchangeRateFor(currency: String): CurrencyResponse
 
     fun ecbDailyExchangeRates(): Map<String, String>
 

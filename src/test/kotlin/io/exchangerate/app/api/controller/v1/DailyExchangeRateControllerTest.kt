@@ -20,8 +20,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.io.IOException
 
 @ExtendWith(SpringExtension::class)
-@WebMvcTest(ExchangeRateController::class)
-class ExchangeRateControllerTest {
+@WebMvcTest(DailyExchangeRateController::class)
+class DailyExchangeRateControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -59,7 +59,7 @@ class ExchangeRateControllerTest {
     fun whenExchangeRateForCurrencyEndpointIsCalled_thenResultContainsMockResponse() {
         //given
         val currency = "PLN"
-        every { service.exchangeRateFor(currency) } returns CurrencyResponse(currency, "4")
+        every { service.dailyExchangeRateFor(currency) } returns CurrencyResponse(currency, "4")
         //when
         mockMvc.get("/daily/exchange-rate/{currency}", currency) {
         }.andExpect {
@@ -80,7 +80,7 @@ class ExchangeRateControllerTest {
     fun whenExchangeRateForNonExistentCurrencyEndpointIsCalled_thenReturnErrorResponse() {
         //given
         val currency = "HRK"
-        every { service.exchangeRateFor(currency) } throws
+        every { service.dailyExchangeRateFor(currency) } throws
                 CurrencyNotAvailableException("Currency $currency not available in ECB daily exchange rate response")
         //when
         mockMvc.get("/daily/exchange-rate/{currency}", currency) {

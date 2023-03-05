@@ -66,7 +66,7 @@ class ExchangeRateServiceImplTest {
     )
         .map { (input, expected) ->
             DynamicTest.dynamicTest("of $expected for currency $input ") {
-                assertEquals(expected, exchangeRateService.exchangeRateFor(input))
+                assertEquals(expected, exchangeRateService.exchangeRateFor(input).rate)
             }
         }
 

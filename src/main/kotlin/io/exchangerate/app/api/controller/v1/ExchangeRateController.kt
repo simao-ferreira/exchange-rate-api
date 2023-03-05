@@ -1,5 +1,6 @@
 package io.exchangerate.app.api.controller.v1
 
+import io.exchangerate.app.api.controller.v1.model.CurrencyResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -39,7 +40,7 @@ class ExchangeRateController(
         description = "Successfully returned available exchange rate"
     )
     @GetMapping("/exchange-rate/{currency}")
-    fun getExchangeRate(@PathVariable currency: String): String {
+    fun getExchangeRate(@PathVariable currency: String): CurrencyResponse {
         return exchangeRateServiceImpl.exchangeRateFor(currency)
     }
 

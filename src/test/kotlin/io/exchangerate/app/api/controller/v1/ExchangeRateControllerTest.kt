@@ -1,9 +1,10 @@
 package io.exchangerate.app.api.controller.v1
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import io.exchangerate.app.api.controller.v1.exceptions.CurrencyNotAvailableException
+import io.exchangerate.app.api.controller.v1.model.CurrencyResponse
 import io.exchangerate.app.api.service.ExchangeRateServiceImpl
+import io.mockk.every
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -57,12 +58,19 @@ class ExchangeRateControllerTest {
     fun whenExchangeRateForCurrencyEndpointIsCalled_thenResultContainsMockResponse() {
         //given
         val currency = "PLN"
-        every { service.exchangeRateFor(currency) } returns "4"
+        every { service.exchangeRateFor(currency) } returns CurrencyResponse(currency, "4")
         //when
         mockMvc.get("/daily/exchange-rate/{currency}", currency) {
         }.andExpect {
             status { isOk() }
-            content { json("4") }
+            content {
+                json(
+                    """{
+                    "currency": "PLN",
+                    "exchangeRate": "4"
+                }"""
+                )
+            }
         }
     }
 
@@ -77,12 +85,13 @@ class ExchangeRateControllerTest {
         mockMvc.get("/daily/exchange-rate/{currency}", currency) {
         }.andExpect {
             status { is4xxClientError() }
-            content { json(
-                """{
+            content {
+                json(
+                    """{
                     "status": 404,
                     "message": "Currency $currency not available in ECB daily exchange rate response"
                 }"""
-            )
+                )
             }
         }
     }

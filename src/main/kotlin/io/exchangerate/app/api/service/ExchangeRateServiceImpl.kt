@@ -1,6 +1,7 @@
 package io.exchangerate.app.api.service
 
 import io.exchangerate.app.api.controller.v1.exceptions.CurrencyNotAvailableException
+import io.exchangerate.app.api.controller.v1.model.CurrencyResponse
 import io.exchangerate.app.infrastructure.model.EnvelopeDto
 import org.springframework.stereotype.Service
 
@@ -13,9 +14,10 @@ class ExchangeRateServiceImpl(
         return mapDayAvailableCurrencies(response)
     }
 
-    override fun exchangeRateFor(currency: String): String {
+    override fun exchangeRateFor(currency: String): CurrencyResponse {
         val response = ecbService.getDailyExchangeRatesResponse()
-        return mapExchangeRateForCurrencyFromResponse(response, currency)
+        val exchangeRate = mapExchangeRateForCurrencyFromResponse(response, currency)
+        return CurrencyResponse(currency, exchangeRate)
     }
 
     override fun ecbDailyExchangeRates(): Map<String, String> {

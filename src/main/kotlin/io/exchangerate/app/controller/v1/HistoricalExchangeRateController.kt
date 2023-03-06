@@ -21,6 +21,21 @@ class HistoricalExchangeRateController(
 
     @Operation(
         method = "GET",
+        summary = "Returns last 90 days euro exchange rates",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successful return of available last 90 days exchange rates"
+            )
+        ]
+    )
+    @GetMapping("/90-days-exchange-rates")
+    fun getLast90DaysExchangeRates(): List<DatedExchangeRateResponse> {
+        return historicalExchangeRateService.last90DaysExchangeRates()
+    }
+
+    @Operation(
+        method = "GET",
         summary = "Returns historical euro exchange rates",
         responses = [
             ApiResponse(
@@ -29,7 +44,7 @@ class HistoricalExchangeRateController(
             )
         ]
     )
-    @GetMapping("/exchange-rates")
+    @GetMapping("/all-exchange-rates")
     fun getHistoricalExchangeRates(): List<DatedExchangeRateResponse> {
         return historicalExchangeRateService.historicalExchangeRates()
     }

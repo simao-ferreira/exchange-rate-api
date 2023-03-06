@@ -20,6 +20,12 @@ class HistoricalExchangeRateServiceImpl(
         return mapHistoricalExchangeRatesResponse(response)
     }
 
+    override fun last90DaysExchangeRates(): List<DatedExchangeRateResponse> {
+        val response = ecbService.getLast90DaysExchangeRatesResponse()
+        log.info { "Received response for ECB historical exchange rates" }
+        return mapHistoricalExchangeRatesResponse(response)
+    }
+
     private fun mapHistoricalExchangeRatesResponse(envelopeDto: EnvelopeDto): List<DatedExchangeRateResponse> {
         val listOfExchangeRates = mutableListOf<DatedExchangeRateResponse>()
         envelopeDto.cubeDto.exchangeRates.forEach {

@@ -1,8 +1,8 @@
 package io.exchangerate.app.controller.v1
 
 import com.ninjasquad.springmockk.MockkBean
-import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.controller.v1.model.CurrencyResponse
+import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ExchangeRateServiceImpl
 import io.mockk.every
 import org.junit.jupiter.api.BeforeEach
@@ -61,18 +61,18 @@ class DailyExchangeRateControllerTest {
         val currency = "PLN"
         every { service.dailyExchangeRateFor(currency) } returns CurrencyResponse(currency, "4")
         //when
-        mockMvc.get("/daily/exchange-rate/{currency}", currency) {
-        }.andExpect {
-            status { isOk() }
-            content {
-                json(
-                    """{
-                    "currency": "PLN",
-                    "rate": "4"
-                }"""
-                )
+        mockMvc.get("/daily/exchange-rate/{currency}", currency)
+            .andExpect {
+                status { isOk() }
+                content {
+                    json(
+                        """{
+                            "currency": "PLN",
+                            "rate": "4"
+                            }"""
+                    )
+                }
             }
-        }
     }
 
     @Test

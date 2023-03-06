@@ -8,7 +8,6 @@ import io.exchangerate.app.service.ecb.dto.CubeDto
 import io.exchangerate.app.service.ecb.dto.DailyReferenceRatesDto
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import io.exchangerate.app.service.ecb.dto.ReferenceRateDto
-import io.exchangerate.app.service.HistoricalExchangeRateService
 import io.mockk.every
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -53,37 +52,50 @@ class HistoricalExchangeRateServiceImplTest {
         )
     )
 
+    private val datedExchangeRateResponse = listOf(
+        DatedExchangeRateResponse(
+            "2023-03-02",
+            listOf(
+                ExchangeRateResponse("BGN", "1.9558"),
+                ExchangeRateResponse("CZK", "23.643"),
+                ExchangeRateResponse("DKK", "7.4438"),
+                ExchangeRateResponse("GBP", "0.88245"),
+            )
+        ),
+        DatedExchangeRateResponse(
+            "2023-03-01",
+            listOf(
+                ExchangeRateResponse("BGN", "1.9534"),
+                ExchangeRateResponse("CZK", "23.553"),
+                ExchangeRateResponse("DKK", "7.4422"),
+                ExchangeRateResponse("GBP", "1.88245"),
+            )
+        )
+    )
+
     @BeforeEach
     fun setup() {
         every { ecbService.getHistoricalExchangeRatesResponse() } returns envelopeDto
+        every { ecbService.getLast90DaysExchangeRatesResponse() } returns envelopeDto
     }
 
     @Test
-    fun `Available currencies should return BGN, CZK, DKK and GBP`() {
+    fun `Should successfully return envelope response for historical exchange rates request`() {
         //when
         val result = service.historicalExchangeRates()
         //then
         assertEquals(
-            listOf(
-                DatedExchangeRateResponse(
-                    "2023-03-02",
-                    listOf(
-                        ExchangeRateResponse("BGN", "1.9558"),
-                        ExchangeRateResponse("CZK", "23.643"),
-                        ExchangeRateResponse("DKK", "7.4438"),
-                        ExchangeRateResponse("GBP", "0.88245"),
-                    )
-                ),
-                DatedExchangeRateResponse(
-                    "2023-03-01",
-                    listOf(
-                        ExchangeRateResponse("BGN", "1.9534"),
-                        ExchangeRateResponse("CZK", "23.553"),
-                        ExchangeRateResponse("DKK", "7.4422"),
-                        ExchangeRateResponse("GBP", "1.88245"),
-                    )
-                )
-            ), result
+            datedExchangeRateResponse, result
+        )
+    }
+
+    @Test
+    fun `Should successfully return envelope response for last 90 days exchange rates request`() {
+        //when
+        val result = service.last90DaysExchangeRates()
+        //then
+        assertEquals(
+            datedExchangeRateResponse, result
         )
     }
 }

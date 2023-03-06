@@ -4,6 +4,7 @@ import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
 import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
 import io.exchangerate.app.service.ecb.EcbService
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,8 +12,11 @@ class HistoricalExchangeRateServiceImpl(
     val ecbService: EcbService
 ) : HistoricalExchangeRateService {
 
+    private val log = KotlinLogging.logger {}
+
     override fun historicalExchangeRates(): List<DatedExchangeRateResponse> {
         val response = ecbService.getHistoricalExchangeRatesResponse()
+        log.info { "Received response for ECB historical exchange rates" }
         return mapHistoricalExchangeRatesResponse(response)
     }
 

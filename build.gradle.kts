@@ -19,6 +19,8 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.2")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
     implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(module = "mockito-core")
     }

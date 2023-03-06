@@ -2,6 +2,8 @@ package io.exchangerate.app.controller.v1
 
 import com.ninjasquad.springmockk.MockkBean
 import io.exchangerate.app.controller.v1.model.CurrencyResponse
+import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
+import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
 import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ExchangeRateServiceImpl
@@ -125,12 +127,34 @@ class DailyExchangeRateControllerTest {
     @DirtiesContext
     fun whenDailyExchangeRatesIsCalled_thenResultContainsMockResponse() {
         //given
-        every { service.ecbDailyExchangeRates() } returns mapOf(Pair("USD", "1.0570"), Pair("JPY", "143.55"))
+        val datedExchangeRateResponse = DatedExchangeRateResponse(
+            "2020-02-01",
+            listOf(
+                ExchangeRateResponse("USD", "1.0570"),
+                ExchangeRateResponse("JPY", "143.55"),
+
+                )
+        )
+        every { service.ecbDailyExchangeRates() } returns datedExchangeRateResponse
         //when
         mockMvc.get("/daily/ecb-exchange-rates") {
         }.andExpect {
             status { isOk() }
-            content { json("""{"USD": "1.0570","JPY": "143.55"}""") }
+            content { json(
+                """{
+                  "date": "2020-02-01",
+                  "rates": [
+                    {
+                      "currency": "USD",
+                      "rate": "1.0570"
+                    },
+                    {
+                      "currency": "JPY",
+                      "rate": "143.55"
+                    }
+                  ]
+                }""")
+            }
         }
     }
 

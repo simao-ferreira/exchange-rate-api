@@ -1,9 +1,11 @@
 package io.exchangerate.app.controller.v1
 
 import io.exchangerate.app.controller.v1.model.CurrencyResponse
+import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
 import io.exchangerate.app.controller.v1.model.ErrorResponse
 import io.exchangerate.app.service.ExchangeRateServiceImpl
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -41,11 +43,18 @@ class DailyExchangeRateController(
             ApiResponse(
                 responseCode = "200",
                 description = "Successful return of available daily exchange rates"
-            )
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Corrupted response",
+                content = [
+                    Content(schema = Schema(implementation = ErrorResponse::class))
+                ]
+            ),
         ]
     )
     @GetMapping("/ecb-exchange-rates")
-    fun getEcbExchangeRates(): Map<String, String> {
+    fun getEcbExchangeRates(): DatedExchangeRateResponse {
         return exchangeRateServiceImpl.ecbDailyExchangeRates()
     }
 
@@ -74,7 +83,13 @@ class DailyExchangeRateController(
         ]
     )
     @GetMapping("/exchange-rate/{currency}")
-    fun getExchangeRate(@PathVariable currency: String): CurrencyResponse {
+    fun getExchangeRate(
+        @Parameter(
+            description = "ISO currency code",
+            example = "DKK"
+        )
+        @PathVariable currency: String
+    ): CurrencyResponse {
         return exchangeRateServiceImpl.dailyExchangeRateFor(currency)
     }
 }

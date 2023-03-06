@@ -1,6 +1,8 @@
 package io.exchangerate.app.service
 
 import com.ninjasquad.springmockk.MockkBean
+import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
+import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
 import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ecb.EcbService
@@ -83,7 +85,7 @@ class ExchangeRateServiceImplTest {
     }
 
     @Test
-    fun `When envelope contains corrupted date should throw exception`() {
+    fun `When currency exchange rate envelope contains corrupted date should throw exception`() {
         //given
         val currency = "BGN"
         val corruptedEnvelopeDto = EnvelopeDto(
@@ -101,6 +103,28 @@ class ExchangeRateServiceImplTest {
         every { ecbService.getDailyExchangeRatesResponse() } returns corruptedEnvelopeDto
         //when
         val result: () -> Unit = { exchangeRateService.dailyExchangeRateFor(currency) }
+        //then
+        assertThrows<CorruptedResponseException>(result)
+    }
+    @Test
+    fun `When daily exchange rate response envelope contains corrupted date should throw exception`() {
+        //given
+        val currency = "BGN"
+        val corruptedEnvelopeDto = EnvelopeDto(
+            CubeDto(
+                listOf(
+                    DailyReferenceRatesDto(
+                        "",
+                        listOf(
+                            ReferenceRateDto(currency, "1.9558"),
+                        )
+                    )
+                )
+            )
+        )
+        every { ecbService.getDailyExchangeRatesResponse() } returns corruptedEnvelopeDto
+        //when
+        val result: () -> Unit = { exchangeRateService.ecbDailyExchangeRates() }
         //then
         assertThrows<CorruptedResponseException>(result)
     }
@@ -131,15 +155,18 @@ class ExchangeRateServiceImplTest {
     @Test
     fun `Should return a list of ecb daily exchange rates`() {
         //given
-        val expected = mapOf(
-            "BGN" to "1.9558",
-            "CZK" to "23.643",
-            "DKK" to "7.4438",
-            "GBP" to "0.88245",
+        val expected = DatedExchangeRateResponse(
+            "2021-01-01",
+            listOf(
+                ExchangeRateResponse("BGN", "1.9558"),
+                ExchangeRateResponse("CZK", "23.643"),
+                ExchangeRateResponse("DKK", "7.4438"),
+                ExchangeRateResponse("GBP", "0.88245")
+            )
         )
         //when
         val result = exchangeRateService.ecbDailyExchangeRates()
         //then
-        assertEquals(result, expected)
+        assertEquals(expected, result)
     }
 }

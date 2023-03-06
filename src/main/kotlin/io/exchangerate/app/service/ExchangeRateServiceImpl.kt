@@ -1,6 +1,8 @@
 package io.exchangerate.app.service
 
 import io.exchangerate.app.controller.v1.model.CurrencyResponse
+import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
+import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
 import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ecb.EcbService
@@ -27,25 +29,42 @@ class ExchangeRateServiceImpl(
         return mapExchangeRateForCurrencyFromResponse(response, currency)
     }
 
-    override fun ecbDailyExchangeRates(): Map<String, String> {
+    override fun ecbDailyExchangeRates(): DatedExchangeRateResponse {
         val response = ecbService.getDailyExchangeRatesResponse()
         log.info { "Handling response for ECB daily exchange rates" }
         return mapDailyExchangeRatesResponse(response)
     }
 
-    private fun mapDailyExchangeRatesResponse(envelopeDto: EnvelopeDto): Map<String, String> {
-        val exchangeRates = mutableMapOf<String, String>()
-        envelopeDto.cubeDto.exchangeRates.first().rates.map {
-            exchangeRates.put(it.currency, it.rate)
+    private fun mapDailyExchangeRatesResponse(envelopeDto: EnvelopeDto): DatedExchangeRateResponse {
+        var date: String
+        val exchangeRates = mutableListOf<ExchangeRateResponse>()
+        envelopeDto.cubeDto.exchangeRates.first().let {
+            date = it.time
+            it.rates.forEach { exchangeRate ->
+                exchangeRates.add(
+                    ExchangeRateResponse(
+                        exchangeRate.currency,
+                        exchangeRate.rate
+                    )
+                )
+            }
         }
-        return exchangeRates
+
+        if (date.isBlank()) {
+            throw CorruptedResponseException("Response has a corrupted date")
+        }
+
+        return DatedExchangeRateResponse(date, exchangeRates)
     }
 
     private fun mapDayAvailableCurrencies(envelopeDto: EnvelopeDto): Set<String> {
         return envelopeDto.cubeDto.exchangeRates.first().rates.map { it.currency }.toSet()
     }
 
-    private fun mapExchangeRateForCurrencyFromResponse(envelopeDto: EnvelopeDto, currency: String): CurrencyResponse {
+    private fun mapExchangeRateForCurrencyFromResponse(
+        envelopeDto: EnvelopeDto,
+        currency: String
+    ): CurrencyResponse {
         var rate: String
         var date: String
         try {

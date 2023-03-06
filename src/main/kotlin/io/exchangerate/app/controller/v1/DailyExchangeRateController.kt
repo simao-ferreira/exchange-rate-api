@@ -64,6 +64,13 @@ class DailyExchangeRateController(
                     Content(schema = Schema(implementation = ErrorResponse::class))
                 ]
             ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Corrupted response",
+                content = [
+                    Content(schema = Schema(implementation = ErrorResponse::class))
+                ]
+            ),
         ]
     )
     @GetMapping("/exchange-rate/{currency}")

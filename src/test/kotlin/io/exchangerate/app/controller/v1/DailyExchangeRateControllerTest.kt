@@ -2,6 +2,7 @@ package io.exchangerate.app.controller.v1
 
 import com.ninjasquad.springmockk.MockkBean
 import io.exchangerate.app.controller.v1.model.CurrencyResponse
+import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ExchangeRateServiceImpl
 import io.mockk.every
@@ -59,7 +60,7 @@ class DailyExchangeRateControllerTest {
     fun whenExchangeRateForCurrencyEndpointIsCalled_thenResultContainsMockResponse() {
         //given
         val currency = "PLN"
-        every { service.dailyExchangeRateFor(currency) } returns CurrencyResponse(currency, "4")
+        every { service.dailyExchangeRateFor(currency) } returns CurrencyResponse("2023-01-01", currency, "4")
         //when
         mockMvc.get("/daily/exchange-rate/{currency}", currency)
             .andExpect {
@@ -67,12 +68,35 @@ class DailyExchangeRateControllerTest {
                 content {
                     json(
                         """{
+                            "date": "2023-01-01",
                             "currency": "PLN",
                             "rate": "4"
                             }"""
                     )
                 }
             }
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenExchangeRateCurrencyEndpointIsCalled_andDataIsCorrupted_thenReturnErrorResponse() {
+        //given
+        val currency = "USD"
+        every { service.dailyExchangeRateFor(currency) } throws
+                CorruptedResponseException("Response has a corrupted value")
+        //when
+        mockMvc.get("/daily/exchange-rate/{currency}", currency) {
+        }.andExpect {
+            status { is4xxClientError() }
+            content {
+                json(
+                    """{
+                        "status": 422,
+                        "message": "Response has a corrupted value"
+                    }"""
+                )
+            }
+        }
     }
 
     @Test

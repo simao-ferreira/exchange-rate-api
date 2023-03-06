@@ -3,6 +3,7 @@ package io.exchangerate.app.controller.v1
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.exceptions.EcbConnectorException
 import io.exchangerate.app.controller.v1.model.ErrorResponse
+import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -32,6 +33,11 @@ class ExceptionHandler {
     @ExceptionHandler
     fun currencyNotAvailableException(ex: CurrencyNotAvailableException): ResponseEntity<ErrorResponse> {
         return ResponseEntity(ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.message), HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler
+    fun corruptedResponseException(ex: CorruptedResponseException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity(ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.message), HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
     @ExceptionHandler

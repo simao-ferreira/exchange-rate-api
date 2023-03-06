@@ -1,6 +1,7 @@
 package io.exchangerate.app.service
 
 import com.ninjasquad.springmockk.MockkBean
+import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ecb.EcbService
 import io.exchangerate.app.service.ecb.dto.CubeDto
@@ -33,7 +34,7 @@ class ExchangeRateServiceImplTest {
         CubeDto(
             listOf(
                 DailyReferenceRatesDto(
-                    "",
+                    "2021-01-01",
                     listOf(
                         ReferenceRateDto("BGN", "1.9558"),
                         ReferenceRateDto("CZK", "23.643"),
@@ -79,6 +80,52 @@ class ExchangeRateServiceImplTest {
         val result: () -> Unit = { exchangeRateService.dailyExchangeRateFor(currency) }
         //then
         assertThrows<CurrencyNotAvailableException>(result)
+    }
+
+    @Test
+    fun `When envelope contains corrupted date should throw exception`() {
+        //given
+        val currency = "BGN"
+        val corruptedEnvelopeDto = EnvelopeDto(
+            CubeDto(
+                listOf(
+                    DailyReferenceRatesDto(
+                        "",
+                        listOf(
+                            ReferenceRateDto(currency, "1.9558"),
+                        )
+                    )
+                )
+            )
+        )
+        every { ecbService.getDailyExchangeRatesResponse() } returns corruptedEnvelopeDto
+        //when
+        val result: () -> Unit = { exchangeRateService.dailyExchangeRateFor(currency) }
+        //then
+        assertThrows<CorruptedResponseException>(result)
+    }
+
+    @Test
+    fun `When envelope contains corrupted rate should throw exception`() {
+        //given
+        val currency = "BGN"
+        val corruptedEnvelopeDto = EnvelopeDto(
+            CubeDto(
+                listOf(
+                    DailyReferenceRatesDto(
+                        "2023-01-01",
+                        listOf(
+                            ReferenceRateDto(currency, ""),
+                        )
+                    )
+                )
+            )
+        )
+        every { ecbService.getDailyExchangeRatesResponse() } returns corruptedEnvelopeDto
+        //when
+        val result: () -> Unit = { exchangeRateService.dailyExchangeRateFor(currency) }
+        //then
+        assertThrows<CorruptedResponseException>(result)
     }
 
     @Test

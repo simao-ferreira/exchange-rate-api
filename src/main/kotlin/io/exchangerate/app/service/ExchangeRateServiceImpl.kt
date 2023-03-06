@@ -1,6 +1,7 @@
 package io.exchangerate.app.service
 
 import io.exchangerate.app.controller.v1.model.CurrencyResponse
+import io.exchangerate.app.exceptions.CorruptedResponseException
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ecb.EcbService
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
@@ -23,8 +24,7 @@ class ExchangeRateServiceImpl(
     override fun dailyExchangeRateFor(currency: String): CurrencyResponse {
         val response = ecbService.getDailyExchangeRatesResponse()
         log.info { "Handling response for ECB daily exchange rates" }
-        val exchangeRate = mapExchangeRateForCurrencyFromResponse(response, currency)
-        return CurrencyResponse(currency, exchangeRate)
+        return mapExchangeRateForCurrencyFromResponse(response, currency)
     }
 
     override fun ecbDailyExchangeRates(): Map<String, String> {
@@ -45,11 +45,26 @@ class ExchangeRateServiceImpl(
         return envelopeDto.cubeDto.exchangeRates.first().rates.map { it.currency }.toSet()
     }
 
-    private fun mapExchangeRateForCurrencyFromResponse(envelopeDto: EnvelopeDto, currency: String): String {
-        return try {
-            envelopeDto.cubeDto.exchangeRates.first().rates.first { it.currency == currency }.rate
+    private fun mapExchangeRateForCurrencyFromResponse(envelopeDto: EnvelopeDto, currency: String): CurrencyResponse {
+        var rate: String
+        var date: String
+        try {
+            envelopeDto.cubeDto.exchangeRates.first().let { dailyRate ->
+                date = dailyRate.time
+                rate = dailyRate.rates.first { it.currency == currency }.rate
+            }
         } catch (ex: NoSuchElementException) {
             throw CurrencyNotAvailableException("Currency $currency not available in ECB daily exchange rate response")
         }
+
+        if (rate.isBlank() || date.isBlank()) {
+            throw CorruptedResponseException("Response has a corrupted value: rate $rate and date $date")
+        }
+
+        return CurrencyResponse(
+            date,
+            currency,
+            rate
+        )
     }
 }

@@ -16,20 +16,20 @@ class ExchangeRateServiceImpl(
 
     override fun availableCurrencies(): Set<String> {
         val response = ecbService.getDailyExchangeRatesResponse()
-        log.info { "Received response for ECB daily exchange rates" }
+        log.info { "Handling response for ECB daily exchange rates" }
         return mapDayAvailableCurrencies(response)
     }
 
     override fun dailyExchangeRateFor(currency: String): CurrencyResponse {
         val response = ecbService.getDailyExchangeRatesResponse()
-        log.info { "Received response for ECB daily exchange rates" }
+        log.info { "Handling response for ECB daily exchange rates" }
         val exchangeRate = mapExchangeRateForCurrencyFromResponse(response, currency)
         return CurrencyResponse(currency, exchangeRate)
     }
 
     override fun ecbDailyExchangeRates(): Map<String, String> {
         val response = ecbService.getDailyExchangeRatesResponse()
-        log.info { "Received response for ECB daily exchange rates" }
+        log.info { "Handling response for ECB daily exchange rates" }
         return mapDailyExchangeRatesResponse(response)
     }
 

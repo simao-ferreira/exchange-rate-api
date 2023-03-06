@@ -2,22 +2,20 @@ package io.exchangerate.app.service.ecb
 
 import com.ninjasquad.springmockk.MockkBean
 import io.exchangerate.app.exceptions.EcbConnectorException
-import io.exchangerate.app.api.service.EcbConnector
 import io.exchangerate.app.service.ecb.dto.CubeDto
 import io.exchangerate.app.service.ecb.dto.DailyReferenceRatesDto
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import io.exchangerate.app.service.ecb.dto.ReferenceRateDto
-import io.exchangerate.app.service.ecb.EcbService
 import io.mockk.every
 import io.mockk.mockk
 import okhttp3.ResponseBody
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import retrofit2.Response
 
@@ -31,14 +29,8 @@ class EcbServiceTest {
     @Autowired
     private lateinit var service: EcbService
 
-
     @Test
-    fun `Find a way to emulate and test the service and or retrofit`() {
-        assertTrue(true)
-//        mockwebserver
-    }
-
-    @Test
+    @DirtiesContext
     fun `Should successfully map last 90 days rates`() {
         //given
         val envelopeDto = EnvelopeDto(
@@ -79,6 +71,7 @@ class EcbServiceTest {
     }
 
     @Test
+    @DirtiesContext
     fun `Should successfully map historical rates`() {
         //given
         val envelopeDto = EnvelopeDto(
@@ -129,6 +122,7 @@ class EcbServiceTest {
     }
 
     @Test
+    @DirtiesContext
     fun `Should successfully map daily rates`() {
         //given
         val envelopeDto = EnvelopeDto(
@@ -155,6 +149,7 @@ class EcbServiceTest {
     }
 
     @Test
+    @DirtiesContext
     fun `Should fail when response body is null for daily rates`() {
         //given
         every { connector.getDailyRates().execute() } returns Response.success(null)
@@ -165,6 +160,7 @@ class EcbServiceTest {
     }
 
     @Test
+    @DirtiesContext
     fun `Should fail when response is not successful for historical rates`() {
         //given
         val mockkResponseBody = mockk<ResponseBody>(relaxed = true)
@@ -176,6 +172,7 @@ class EcbServiceTest {
     }
 
     @Test
+    @DirtiesContext
     fun `Should fail when response is not successful for last 90 days rates`() {
         assertThrows<EcbConnectorException> {
             //given

@@ -1,7 +1,6 @@
 package io.exchangerate.app.service.ecb.dto
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -36,6 +35,7 @@ class EnvelopeDtoUnmarshallingTest {
         assertEquals("ZAR", result.cubeDto.exchangeRates[0].rates[29].currency)
         assertEquals("19.2837", result.cubeDto.exchangeRates[0].rates[29].rate)
     }
+
     @Test
     fun `Unmarshalling historical exchange rates to envelope works accurately`() {
         //when

@@ -1,6 +1,12 @@
 spring:
   application:
     name: exchange-rate-api
+  cache:
+    cache-names: ecb
+    caffeine:
+      spec:
+        maximum-size: 500
+
 
 #https://springdoc.org/v2/#properties
 springdoc:

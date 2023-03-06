@@ -1,14 +1,13 @@
 package io.exchangerate.app.service
 
 import com.ninjasquad.springmockk.MockkBean
-import io.mockk.every
 import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.service.ecb.EcbService
 import io.exchangerate.app.service.ecb.dto.CubeDto
 import io.exchangerate.app.service.ecb.dto.DailyReferenceRatesDto
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import io.exchangerate.app.service.ecb.dto.ReferenceRateDto
-import io.exchangerate.app.service.ExchangeRateServiceImpl
+import io.mockk.every
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DynamicTest

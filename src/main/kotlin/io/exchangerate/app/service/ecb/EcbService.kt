@@ -1,9 +1,9 @@
 package io.exchangerate.app.service.ecb
 
-import io.exchangerate.app.api.service.EcbConnector
 import io.exchangerate.app.exceptions.EcbConnectorException
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import mu.KotlinLogging
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import retrofit2.Call
 
@@ -12,16 +12,19 @@ class EcbService(val ecbConnector: EcbConnector) {
 
     private val log = KotlinLogging.logger {}
 
+    @Cacheable(value = ["dailyExchangeRates"])
     fun getDailyExchangeRatesResponse(): EnvelopeDto {
         log.debug { "Calling ECB daily exchange rates" }
         return envelopeResponse(ecbConnector.getDailyRates())
     }
 
+    @Cacheable(value = ["last90DaysExchangeRates"])
     fun getLast90DaysExchangeRatesResponse(): EnvelopeDto {
         log.info { "Calling ECB 90 days exchange rates" }
         return envelopeResponse(ecbConnector.getLast90DaysRates())
     }
 
+    @Cacheable(value = ["historicalExchangeRates"])
     fun getHistoricalExchangeRatesResponse(): EnvelopeDto {
         log.info { "Calling ECB historical exchange rates" }
         return envelopeResponse(ecbConnector.getAllHistoricalRates())

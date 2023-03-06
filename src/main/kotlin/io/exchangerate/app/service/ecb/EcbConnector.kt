@@ -1,4 +1,4 @@
-package io.exchangerate.app.api.service
+package io.exchangerate.app.service.ecb
 
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import org.springframework.stereotype.Component

@@ -1,7 +1,7 @@
 package io.exchangerate.app.config
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import io.exchangerate.app.api.service.EcbConnector
+import io.exchangerate.app.service.ecb.EcbConnector
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

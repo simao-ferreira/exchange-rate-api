@@ -3,6 +3,7 @@ package io.exchangerate.app.controller.v1
 import com.ninjasquad.springmockk.MockkBean
 import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
 import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
+import io.exchangerate.app.exceptions.EcbConnectorException
 import io.exchangerate.app.service.HistoricalExchangeRateServiceImpl
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -164,7 +165,7 @@ class HistoricalExchangeRateControllerTest {
     @DirtiesContext
     fun whenAllExchangeRatesEndpointIsCalled_andSomeExceptionIsThrown_thenReturnErrorResponse() {
         //given
-        every { service.historicalExchangeRates() } throws IOException("Some exception message")
+        every { service.historicalExchangeRates() } throws EcbConnectorException("Some exception message")
         //when
         mockMvc.get("/historical/all-exchange-rates") {
         }.andExpect {
@@ -172,7 +173,7 @@ class HistoricalExchangeRateControllerTest {
             content {
                 json(
                     """{
-                    "status": 500,
+                    "status": 503,
                     "message": "Some exception message"
                     }"""
                 )

@@ -1,3 +1,3 @@
 package io.exchangerate.app.exceptions
 
-class CurrencyNotAvailableException(message: String) : Exception(message)
+class CurrencyNotAvailableException(message: String) : RuntimeException(message)

@@ -47,6 +47,15 @@ class HistoricalExchangeRateServiceImplTest {
                         ReferenceRateDto("DKK", "7.4422"),
                         ReferenceRateDto("GBP", "1.88245"),
                     )
+                ),
+                DailyReferenceRatesDto(
+                    "2023-02-01",
+                    listOf(
+                        ReferenceRateDto("BGN", "1.9434"),
+                        ReferenceRateDto("CZK", "22.553"),
+                        ReferenceRateDto("DKK", "6.4422"),
+                        ReferenceRateDto("GBP", "1.88445"),
+                    )
                 )
             )
         )
@@ -70,6 +79,15 @@ class HistoricalExchangeRateServiceImplTest {
                 ExchangeRateResponse("DKK", "7.4422"),
                 ExchangeRateResponse("GBP", "1.88245"),
             )
+        ),
+        DatedExchangeRateResponse(
+            "2023-02-01",
+            listOf(
+                ExchangeRateResponse("BGN", "1.9434"),
+                ExchangeRateResponse("CZK", "22.553"),
+                ExchangeRateResponse("DKK", "6.4422"),
+                ExchangeRateResponse("GBP", "1.88445"),
+            )
         )
     )
 
@@ -90,12 +108,42 @@ class HistoricalExchangeRateServiceImplTest {
     }
 
     @Test
-    fun `Should successfully return envelope response for last 90 days exchange rates request`() {
+    fun `Should successfully return paged response for historical exchange rates request`() {
+        //given
         //when
-        val result = service.last90DaysExchangeRates()
+        val result = service.pagedHistoricalExchangeRates(1, 100)
         //then
         assertEquals(
             datedExchangeRateResponse, result
+        )
+    }
+
+    @Test
+    fun `Should successfully return page 2 response for historical exchange rates request`() {
+        //when
+        val result = service.pagedHistoricalExchangeRates(2, 1)
+        //then
+        assertEquals(
+            listOf(datedExchangeRateResponse[1]), result
+        )
+    }
+
+    @Test
+    fun `Should successfully return 2 page with only 1 item for historical exchange rates request`() {
+        //when
+        val result = service.pagedHistoricalExchangeRates(2, 2)
+        //then
+        assertEquals(
+            1, result.size
+        )
+    }
+    @Test
+    fun `Should successfully return 1 page with only 2 items for historical exchange rates request`() {
+        //when
+        val result = service.pagedHistoricalExchangeRates(1, 2)
+        //then
+        assertEquals(
+            2, result.size
         )
     }
 }

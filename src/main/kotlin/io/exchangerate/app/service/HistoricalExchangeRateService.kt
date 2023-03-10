@@ -6,6 +6,8 @@ interface HistoricalExchangeRateService {
 
     fun historicalExchangeRates(): List<DatedExchangeRateResponse>
 
+    fun pagedHistoricalExchangeRates(page: Int, size: Int): List<DatedExchangeRateResponse>
+
     fun last90DaysExchangeRates(): List<DatedExchangeRateResponse>
 
 }

@@ -2,6 +2,7 @@ package io.exchangerate.app.service
 
 import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
 import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
+import io.exchangerate.app.exceptions.PageNotFoundException
 import io.exchangerate.app.service.ecb.EcbService
 import io.exchangerate.app.service.ecb.dto.EnvelopeDto
 import mu.KotlinLogging
@@ -18,6 +19,19 @@ class HistoricalExchangeRateServiceImpl(
         val response = ecbService.getHistoricalExchangeRatesResponse()
         log.info { "Received response for ECB historical exchange rates" }
         return mapHistoricalExchangeRatesResponse(response)
+    }
+
+    override fun pagedHistoricalExchangeRates(page: Int, size: Int): List<DatedExchangeRateResponse> {
+        val response = ecbService.getHistoricalExchangeRatesResponse()
+        log.info { "Received response for ECB historical exchange rates" }
+
+        val rates = mapHistoricalExchangeRatesResponse(response).chunked(size)
+
+        if(page - 1 > rates.size){
+            throw PageNotFoundException("Page $page not found, last page is ${rates.size}")
+        }
+
+        return rates[page - 1]
     }
 
     override fun last90DaysExchangeRates(): List<DatedExchangeRateResponse> {

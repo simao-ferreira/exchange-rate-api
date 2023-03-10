@@ -3,6 +3,8 @@ package io.exchangerate.app.service
 import com.ninjasquad.springmockk.MockkBean
 import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
 import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
+import io.exchangerate.app.exceptions.CurrencyNotAvailableException
+import io.exchangerate.app.exceptions.YearOutOfLimitsException
 import io.exchangerate.app.service.ecb.EcbService
 import io.exchangerate.app.service.ecb.dto.CubeDto
 import io.exchangerate.app.service.ecb.dto.DailyReferenceRatesDto
@@ -12,6 +14,7 @@ import io.mockk.every
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -49,7 +52,7 @@ class HistoricalExchangeRateServiceImplTest {
                     )
                 ),
                 DailyReferenceRatesDto(
-                    "2023-02-01",
+                    "2022-02-01",
                     listOf(
                         ReferenceRateDto("BGN", "1.9434"),
                         ReferenceRateDto("CZK", "22.553"),
@@ -81,7 +84,7 @@ class HistoricalExchangeRateServiceImplTest {
             )
         ),
         DatedExchangeRateResponse(
-            "2023-02-01",
+            "2022-02-01",
             listOf(
                 ExchangeRateResponse("BGN", "1.9434"),
                 ExchangeRateResponse("CZK", "22.553"),
@@ -137,6 +140,7 @@ class HistoricalExchangeRateServiceImplTest {
             1, result.size
         )
     }
+
     @Test
     fun `Should successfully return 1 page with only 2 items for historical exchange rates request`() {
         //when
@@ -145,5 +149,47 @@ class HistoricalExchangeRateServiceImplTest {
         assertEquals(
             2, result.size
         )
+    }
+
+    @Test
+    fun `Should successfully return response for year and given currencies`() {
+        //given
+        //when
+        val result = service.yearlyExchangeRates("2023", setOf("DKK", "CZK"))
+        //then
+        assertEquals(
+            listOf(
+                DatedExchangeRateResponse(
+                    "2023-03-02",
+                    listOf(
+                        ExchangeRateResponse("CZK", "23.643"),
+                        ExchangeRateResponse("DKK", "7.4438"),
+                    )
+                ),
+                DatedExchangeRateResponse(
+                    "2023-03-01",
+                    listOf(
+                        ExchangeRateResponse("CZK", "23.553"),
+                        ExchangeRateResponse("DKK", "7.4422"),
+                    )
+                ),
+            ), result
+        )
+    }
+
+    @Test
+    fun `Should throw exception for year and non existent given currencies`() {
+        //when
+        val result: () -> Unit = { service.yearlyExchangeRates("2023", setOf("UUU", "HRK")) }
+        //then
+        assertThrows<CurrencyNotAvailableException>(result)
+    }
+
+    @Test
+    fun `Should throw exception for year in the future`() {
+        //when
+        val result: () -> Unit = { service.yearlyExchangeRates("2099", setOf("UUU", "HRK")) }
+        //then
+        assertThrows<YearOutOfLimitsException>(result)
     }
 }

@@ -72,4 +72,41 @@ class HistoricalExchangeRateController(
     ): List<DatedExchangeRateResponse> {
         return historicalExchangeRateService.pagedHistoricalExchangeRates(page, size)
     }
+
+    @Operation(
+        method = "GET",
+        summary = "Returns yearly euro exchange rates for given currencies",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successful return of available yearly exchange rates"
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Currencies not found",
+                content = [
+                    Content(schema = Schema(implementation = ErrorResponse::class))
+                ]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Given year is in the future",
+                content = [
+                    Content(schema = Schema(implementation = ErrorResponse::class))
+                ]
+            ),
+        ]
+    )
+    @GetMapping("/year-exchange-rates")
+    fun getYearlyExchangeRates(
+        @Parameter(description = "Year, starting from 1991")
+        @RequestParam(value = "year", defaultValue = "1991")
+        @Min(1991)
+        year: String,
+        @Parameter(description = "ISO currencies")
+        @RequestParam(value = "currencies", defaultValue = "USD, DKK")
+        currencies: Set<String>,
+    ): List<DatedExchangeRateResponse> {
+        return historicalExchangeRateService.yearlyExchangeRates(year, currencies)
+    }
 }

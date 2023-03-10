@@ -1,10 +1,11 @@
 package io.exchangerate.app.controller.v1
 
-import io.exchangerate.app.exceptions.CurrencyNotAvailableException
-import io.exchangerate.app.exceptions.EcbConnectorException
 import io.exchangerate.app.controller.v1.model.ErrorResponse
 import io.exchangerate.app.exceptions.CorruptedResponseException
+import io.exchangerate.app.exceptions.CurrencyNotAvailableException
+import io.exchangerate.app.exceptions.EcbConnectorException
 import io.exchangerate.app.exceptions.PageNotFoundException
+import io.exchangerate.app.exceptions.YearOutOfLimitsException
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -42,8 +43,16 @@ class ExceptionHandler {
     }
 
     @ExceptionHandler
+    fun yearOutOfLimitsException(ex: YearOutOfLimitsException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler
     fun corruptedResponseException(ex: CorruptedResponseException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity(ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.message), HttpStatus.UNPROCESSABLE_ENTITY)
+        return ResponseEntity(
+            ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.message),
+            HttpStatus.UNPROCESSABLE_ENTITY
+        )
     }
 
     @ExceptionHandler

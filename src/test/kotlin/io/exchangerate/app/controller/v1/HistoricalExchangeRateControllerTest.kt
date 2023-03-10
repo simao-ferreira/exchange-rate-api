@@ -3,8 +3,10 @@ package io.exchangerate.app.controller.v1
 import com.ninjasquad.springmockk.MockkBean
 import io.exchangerate.app.controller.v1.model.DatedExchangeRateResponse
 import io.exchangerate.app.controller.v1.model.ExchangeRateResponse
+import io.exchangerate.app.exceptions.CurrencyNotAvailableException
 import io.exchangerate.app.exceptions.EcbConnectorException
 import io.exchangerate.app.exceptions.PageNotFoundException
+import io.exchangerate.app.exceptions.YearOutOfLimitsException
 import io.exchangerate.app.service.HistoricalExchangeRateServiceImpl
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -38,7 +40,7 @@ class HistoricalExchangeRateControllerTest {
             )
         ),
         DatedExchangeRateResponse(
-            "2023-03-01",
+            "2022-03-01",
             listOf(
                 ExchangeRateResponse("BGN", "1.9534"),
                 ExchangeRateResponse("CZK", "23.553"),
@@ -71,7 +73,7 @@ class HistoricalExchangeRateControllerTest {
                             ]
                           },
                           {
-                            "date": "2023-03-01",
+                            "date": "2022-03-01",
                             "rates": [
                               {
                                 "currency": "BGN",
@@ -215,5 +217,114 @@ class HistoricalExchangeRateControllerTest {
                 )
             }
         }
+    }
+
+
+    @Test
+    @DirtiesContext
+    fun whenYearlyExchangeRatesEndpointIsCalled_forValidYearAndCurrency_thenResultContainsMockResponse() {
+        //given
+        val response = listOf(
+            DatedExchangeRateResponse(
+                "2022-03-01",
+                listOf(
+                    ExchangeRateResponse("CZK", "23.553"),
+                    ExchangeRateResponse("DKK", "7.4422"),
+                )
+            )
+        )
+        every { service.yearlyExchangeRates("2022", setOf("DKK", "CZK")) } returns response
+        //when
+        mockMvc.get("/historical/year-exchange-rates") {
+            param("year", "2022")
+            param("currencies", "DKK", "CZK")
+        }
+            //then
+            .andExpect {
+                status { isOk() }
+            }
+            .andExpect {
+                content {
+                    json(
+                        """[
+                          {
+                            "date": "2022-03-01",
+                            "rates": [
+                              {
+                                "currency": "CZK",
+                                "rate": "23.553"
+                              },
+                              {
+                                "currency": "DKK",
+                                "rate": "7.4422"
+                              }
+                            ]
+                          }
+                        ]"""
+                    )
+                }
+            }
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenYearlyExchangeRatesEndpointIsCalled_forInvalidCurrency_thenReturnErrorResponse() {
+        //given
+        every {
+            service.yearlyExchangeRates(
+                "2023",
+                setOf("HRK")
+            )
+        } throws CurrencyNotAvailableException("Currency not found")
+        //when
+        mockMvc.get("/historical/year-exchange-rates") {
+            param("year", "2023")
+            param("currencies", "HRK")
+        }
+            //then
+            .andExpect {
+                status { is4xxClientError() }
+            }
+            .andExpect {
+                content {
+                    json(
+                        """{
+                    "status":404,
+                    "message":"Currency not found"
+                    }"""
+                    )
+                }
+            }
+    }
+
+    @Test
+    @DirtiesContext
+    fun whenYearlyExchangeRatesEndpointIsCalled_forInvalidYear_thenReturnErrorResponse() {
+        //given
+        every {
+            service.yearlyExchangeRates(
+                "2099",
+                setOf("HRK")
+            )
+        } throws YearOutOfLimitsException("No exchange rates for the future yet!")
+        //when
+        mockMvc.get("/historical/year-exchange-rates") {
+            param("year", "2099")
+            param("currencies", "HRK")
+        }
+            //then
+            .andExpect {
+                status { is4xxClientError() }
+            }
+            .andExpect {
+                content {
+                    json(
+                        """{
+                    "status":400,
+                    "message":"No exchange rates for the future yet!"
+                    }"""
+                    )
+                }
+            }
     }
 }
